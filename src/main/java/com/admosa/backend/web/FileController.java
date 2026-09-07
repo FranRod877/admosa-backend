@@ -46,14 +46,24 @@ public class FileController {
     public ResponseEntity<Resource> download(
             @AuthenticationPrincipal CustomUserDetails principal,
             @PathVariable UUID id) {
-        FileService.DownloadPayload payload = fileService.download(principal.getUsuario(), id);
+        return respuesta(fileService.download(principal.getUsuario(), id), "attachment");
+    }
+
+    @GetMapping("/{id}/view")
+    public ResponseEntity<Resource> view(
+            @AuthenticationPrincipal CustomUserDetails principal,
+            @PathVariable UUID id) {
+        return respuesta(fileService.view(principal.getUsuario(), id), "inline");
+    }
+
+    private ResponseEntity<Resource> respuesta(FileService.DownloadPayload payload, String disposicion) {
         MediaType mediaType = payload.contentType() != null
                 ? MediaType.parseMediaType(payload.contentType())
                 : MediaType.APPLICATION_OCTET_STREAM;
 
         return ResponseEntity.ok()
                 .contentType(mediaType)
-                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + payload.filename() + "\"")
+                .header(HttpHeaders.CONTENT_DISPOSITION, disposicion + "; filename=\"" + payload.filename() + "\"")
                 .body(payload.resource());
     }
 
