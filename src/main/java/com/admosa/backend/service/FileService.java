@@ -13,6 +13,8 @@ import java.io.UncheckedIOException;
 import java.time.LocalDateTime;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Locale;
+import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -27,6 +29,14 @@ import org.springframework.web.multipart.MultipartFile;
 @RequiredArgsConstructor
 public class FileService {
 
+    /**
+     * Extensiones aceptadas para carga de archivos. Debe coincidir con la
+     * lista mostrada en el frontend (src/files/FilesPage.tsx).
+     */
+    private static final Set<String> EXTENSIONES_PERMITIDAS = Set.of(
+            "pdf", "doc", "docx", "xls", "xlsx", "ppt", "pptx", "txt", "csv",
+            "jpg", "jpeg", "png", "gif", "webp");
+
     private final ArchivoRepository archivoRepository;
     private final HistorialAccionRepository historialAccionRepository;
     private final FileStorageService fileStorageService;
@@ -34,6 +44,13 @@ public class FileService {
 
     @Transactional
     public ArchivoResponse upload(Usuario actor, MultipartFile file) {
+        String extension = extraerExtension(file.getOriginalFilename());
+        if (!EXTENSIONES_PERMITIDAS.contains(extension)) {
+            throw new IllegalArgumentException(
+                    "Tipo de archivo no permitido (." + extension + "). Formatos aceptados: "
+                            + String.join(", ", EXTENSIONES_PERMITIDAS));
+        }
+
         String storageKey;
         try {
             storageKey = fileStorageService.store(file.getInputStream());
@@ -129,6 +146,17 @@ public class FileService {
     private Archivo obtenerArchivo(UUID id) {
         return archivoRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Archivo no encontrado"));
+    }
+
+    private String extraerExtension(String nombreArchivo) {
+        if (nombreArchivo == null) {
+            return "";
+        }
+        int puntoIndex = nombreArchivo.lastIndexOf('.');
+        if (puntoIndex == -1 || puntoIndex == nombreArchivo.length() - 1) {
+            return "";
+        }
+        return nombreArchivo.substring(puntoIndex + 1).toLowerCase(Locale.ROOT);
     }
 
     private List<Archivo> mergeSinDuplicados(List<Archivo> a, List<Archivo> b) {
