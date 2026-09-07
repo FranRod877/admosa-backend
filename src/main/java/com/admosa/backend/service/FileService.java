@@ -87,12 +87,21 @@ public class FileService {
 
     @Transactional
     public DownloadPayload download(Usuario actor, UUID archivoId) {
+        return obtenerPayload(actor, archivoId, AccionHistorial.DESCARGA);
+    }
+
+    @Transactional
+    public DownloadPayload view(Usuario actor, UUID archivoId) {
+        return obtenerPayload(actor, archivoId, AccionHistorial.VISUALIZACION);
+    }
+
+    private DownloadPayload obtenerPayload(Usuario actor, UUID archivoId, AccionHistorial accion) {
         Archivo archivo = obtenerArchivo(archivoId);
         if (!accessPolicy.canDownload(actor, archivo)) {
-            throw new AccessDeniedException("No tienes permiso para descargar este archivo");
+            throw new AccessDeniedException("No tienes permiso para acceder a este archivo");
         }
         Resource resource = fileStorageService.loadAsResource(archivo.getStorageKey());
-        registrarHistorial(actor, archivo, AccionHistorial.DESCARGA);
+        registrarHistorial(actor, archivo, accion);
         return new DownloadPayload(resource, archivo.getNombreOriginal(), archivo.getContentType());
     }
 

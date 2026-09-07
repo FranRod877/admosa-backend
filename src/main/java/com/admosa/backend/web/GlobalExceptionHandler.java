@@ -38,6 +38,11 @@ public class GlobalExceptionHandler {
         return body(HttpStatus.BAD_REQUEST, detalle);
     }
 
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<Object> handleIllegalArgument(IllegalArgumentException ex) {
+        return body(HttpStatus.BAD_REQUEST, ex.getMessage());
+    }
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<Object> handleUnexpected(Exception ex) {
         return body(HttpStatus.INTERNAL_SERVER_ERROR, "Ocurrió un error inesperado");
