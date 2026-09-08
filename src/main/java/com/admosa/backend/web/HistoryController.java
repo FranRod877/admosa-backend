@@ -5,6 +5,7 @@ import com.admosa.backend.security.CustomUserDetails;
 import com.admosa.backend.service.HistoryService;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -18,6 +19,7 @@ public class HistoryController {
     private final HistoryService historyService;
 
     @GetMapping
+    @PreAuthorize("hasAnyRole('GERENTE', 'ADMINISTRADOR')")
     public List<HistorialResponse> historial(@AuthenticationPrincipal CustomUserDetails principal) {
         return historyService.historialPara(principal.getUsuario());
     }
