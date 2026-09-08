@@ -28,7 +28,6 @@ Backend de Spring Boot para la gestión segura de archivos por usuario, rol y á
 
 ## Ejecutar el proyecto
 ```bash
-cd C:\Users\franr\workspace\admosa-backend
 set JAVA_HOME=C:\Program Files\Microsoft\jdk-17.0.20.101-hotspot
 gradlew.bat bootRun
 ```
