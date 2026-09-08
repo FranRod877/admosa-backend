@@ -9,13 +9,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
- * Alcance del historial por rol: usuario estándar y jefe de área ven solo sus
- * propias acciones; gerente ve las de los usuarios de las áreas que gestiona;
- * administrador ve todo, tal como pide la especificación.
+ * Acceso al historial reservado a gerente y administrador: el gerente ve las
+ * acciones de los usuarios de las áreas que gestiona, el administrador ve todo.
  */
 @Service
 @RequiredArgsConstructor
@@ -39,7 +39,7 @@ public class HistoryService {
                 usuarioIds.add(actor.getId());
                 yield historialAccionRepository.findByUsuarioIdInOrderByFechaDesc(usuarioIds);
             }
-            case JEFE_AREA, USUARIO_ESTANDAR -> historialAccionRepository.findByUsuarioIdOrderByFechaDesc(actor.getId());
+            case JEFE_AREA, USUARIO_ESTANDAR -> throw new AccessDeniedException("No tienes permiso para ver el historial");
         };
 
         return registros.stream().map(this::toResponse).collect(Collectors.toList());

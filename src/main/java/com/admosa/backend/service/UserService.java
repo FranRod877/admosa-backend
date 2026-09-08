@@ -43,7 +43,11 @@ public class UserService {
         if (request.rol() != null) {
             usuario.setRol(request.rol());
         }
-        if (request.areaId() != null) {
+
+        boolean sinArea = usuario.getRol() == Rol.ADMINISTRADOR || usuario.getRol() == Rol.GERENTE;
+        if (sinArea) {
+            usuario.setArea(null);
+        } else if (request.areaId() != null) {
             Area area = areaRepository.findById(request.areaId())
                     .orElseThrow(() -> new ResourceNotFoundException("Área no encontrada"));
             usuario.setArea(area);
