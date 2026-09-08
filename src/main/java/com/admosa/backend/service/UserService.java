@@ -53,6 +53,12 @@ public class UserService {
             usuario.setArea(area);
         }
 
+        if (usuario.getRol() != Rol.GERENTE) {
+            List<Area> areasGestionadas = areaRepository.findByGerenteId(usuario.getId());
+            areasGestionadas.forEach(area -> area.setGerente(null));
+            areaRepository.saveAll(areasGestionadas);
+        }
+
         return UsuarioResponse.from(usuarioRepository.save(usuario));
     }
 }
